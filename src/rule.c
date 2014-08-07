@@ -10,13 +10,15 @@
 
 #include <string.h>
 #include <ctype.h>
+#ifndef _WIN32
 #include <syslog.h>
+#include <unistd.h>
+#endif
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <pthread.h>
 
 #include "rule.h"

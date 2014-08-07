@@ -14,9 +14,12 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <pthread.h>
+
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 #include "zc_defs.h"
 #include "rotater.h"
@@ -102,8 +105,12 @@ zlog_rotater_t *zlog_rotater_new(char *lock_file)
 	 * user B is unable to read /tmp/zlog.lock
 	 * B has to choose another lock file except /tmp/zlog.lock
 	 */
-	fd = open(lock_file, O_RDWR | O_CREAT,
+#ifndef _WIN32
+	 fd = open(lock_file, O_RDWR | O_CREAT,
 		  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+#else
+	fd = open(lock_file, O_RDWR | O_CREAT);
+#endif
 	if (fd < 0) {
 		zc_error("open file[%s] fail, errno[%d]", lock_file, errno);
 		goto err;
@@ -468,6 +475,7 @@ err:
 
 static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 {
+/*
 	int rc;
 	struct flock fl;
 
@@ -484,13 +492,13 @@ static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 		zc_error("pthread_mutex_trylock fail, rc[%d]", rc);
 		return -1;
 	}
-
-	if (fcntl(a_rotater->lock_fd, F_SETLK, &fl)) {
-		if (errno == EAGAIN || errno == EACCES) {
+*/
+//	if (fcntl(a_rotater->lock_fd, F_SETLK, &fl)) {
+//		if (errno == EAGAIN || errno == EACCES) {
 			/* lock by other process, that's right, go on */
 			/* EAGAIN on linux */
 			/* EACCES on AIX */
-			zc_warn("fcntl lock fail, as file is lock by other process");
+/*			zc_warn("fcntl lock fail, as file is lock by other process");
 		} else {
 			zc_error("lock fd[%d] fail, errno[%d]", a_rotater->lock_fd, errno);
 		}
@@ -499,14 +507,14 @@ static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 		}
 		return -1;
 	}
-
+*/
 	return 0;
 }
 
 static int zlog_rotater_unlock(zlog_rotater_t *a_rotater)
 {
 	int rc = 0;
-	struct flock fl;
+/*	struct flock fl;
 
 	fl.l_type = F_UNLCK;
 	fl.l_start = 0;
@@ -522,7 +530,7 @@ static int zlog_rotater_unlock(zlog_rotater_t *a_rotater)
 		rc = -1;
 		zc_error("pthread_mutext_unlock fail, errno[%d]", errno);
 	}
-
+*/
 	return rc;
 }
 
