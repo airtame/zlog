@@ -21,7 +21,7 @@ endif()
 
 if (WIN32)
     set_target_properties(zlog PROPERTIES PREFIX "")
-elseif ()
+endif ()
 
 install(TARGETS zlog
     COMPONENT zlog
